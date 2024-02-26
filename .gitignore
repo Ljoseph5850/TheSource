@@ -15,3 +15,4 @@
 *.db
 *.bin
 *.st
+*.dylib
