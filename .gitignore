@@ -1,0 +1,17 @@
+
+*.meta
+*.json
+*.payloads
+*.graph
+*.outputdata
+*.dag_derived
+*.dag_fsmtime
+*.dag
+*.o
+*.txt
+*.gbc
+*.log
+*.catalog
+*.db
+*.bin
+*.st
