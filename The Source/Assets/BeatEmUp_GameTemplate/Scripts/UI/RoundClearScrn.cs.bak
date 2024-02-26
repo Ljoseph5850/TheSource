@@ -1,0 +1,105 @@
+﻿using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
+public class RoundClearScrn : MonoBehaviour {
+
+	public Text text;
+	public Gradient ColorTransition;
+	public float speed = 3.5f;
+	public UIFader fader;
+	public GameObject gameLogo;
+	
+	public MainMenu theMainMenu;
+	
+	private bool restartInProgress = false;
+	private bool tryAgain;
+	private int levelNumber;
+
+	void Start(){
+		HideText();
+		theMainMenu = FindObjectOfType<MainMenu>();
+	}
+
+	void OnEnable() {
+		EnemyWaveSystem.onLevelComplete += ShowLevelCompleteScrn;
+		InputManager.onCombatInputEvent += InputEvent;
+	}
+
+	void OnDisable() {
+		EnemyWaveSystem.onLevelComplete -= ShowLevelCompleteScrn;
+		InputManager.onCombatInputEvent -= InputEvent;
+	}
+
+	void ShowLevelCompleteScrn(){
+		fader.Fade(UIFader.FADE.FadeOut, .5f, 1);
+		Invoke("ShowText", 1.4f);
+	}
+
+	void ShowText(){
+		text.gameObject.SetActive(true);
+	}
+
+	void HideText(){
+		text.gameObject.SetActive(false);
+	}
+
+	//restart level on button press
+	void InputEvent(string action){
+		if(text.gameObject.activeSelf){ 
+			RestartLevel();
+		}
+	}
+
+	void Update(){
+
+		//text effect
+		if(text != null && text.gameObject.activeSelf){
+			float t = Mathf.PingPong(Time.time * speed, 1f);
+			text.color = ColorTransition.Evaluate(t);
+		}
+
+		//restart button pressed
+		if(Input.GetMouseButtonDown(0) && text.gameObject.activeSelf){
+			RestartLevel();
+		}
+		
+		if(tryAgain){
+			theMainMenu.SetLogo();
+		}
+		
+	}
+	
+	public void activateLevelSelect(int leveToAdd)
+    {
+        levelNumber += leveToAdd;
+    }
+
+	//restarts the current level
+	void RestartLevel(){
+		if(!restartInProgress){
+			restartInProgress = true;
+			GlobalAudioPlayer.PlaySFX("ButtonStart");
+
+			//button flicker
+			ButtonFlicker bf =  GetComponentInChildren<ButtonFlicker>();
+			if(bf != null) bf.StartButtonFlicker();
+			
+			//levelNumber += 1;
+
+			Invoke("RestartScene", 1f);
+		}
+	}
+
+	void RestartScene(){
+		theMainMenu.SetLogo();
+		Debug.Log(levelNumber);
+		SceneManager.LoadScene("Game" + levelNumber);
+	}
+	
+	public void setTry(){
+		tryAgain = true;
+	}
+	
+	
+}
